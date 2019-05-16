@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var pool = require('../config');
+
 //var elasticsearch = require('@elastic/elasticsearch');
 // var elasticsearch = require('elasticsearch');
 /*var esclient = new elasticsearch.Client({
@@ -25,8 +26,8 @@ esclient.search({
 ).then(function (response) {
     var hits = response.hits.hits;
 }
-);
-*/
+);*/
+
 var multer = require('multer')
 
 var _storage = multer.diskStorage({
@@ -66,7 +67,6 @@ router.get('/recently', function(req, res, next) {
       }
     })
   })
-  
 });
 
 
@@ -74,19 +74,28 @@ router.get('/recently', function(req, res, next) {
 /*집 등록하기 */
 router.post('/houseRegister', upload.single('photo'),function (req, res, next) {
   var postData = req.body;
-  var imgurl = 'images/' + req.file.originalname;
+  var imgurl =""
   pool.getConnection(function (err, conn) {
     if (err) throw err;
-    var sql = "INSERT INTO house (housePic, housePrice, houseSpace, houseComment, houseAddress, userMail) VALUES (?, ?, ?, ?, ?, ?);"
-    conn.query(sql, [imgurl, postData.housePrice, postData.houseSpace, postData.houseComment, postData.houseAddress, postData.userMail], function (err, row) {
-        conn.release()
-          if (err) throw err;
-          res.send(200,{
-          result:1
+    if (req.file !== undefined) {
+      imgurl = 'images/' + req.file.originalname;
+    }
+    var sql = "INSERT INTO house (housePic, housePrice, houseSpace, houseComment, houseAddress1, houseAddress2, houseAddress3, userMail) VALUES (?, ?, ?, ?, ?, ?, ?, ?);"
 
-          })  
-    });
-  }) 
+    conn.query(sql, [imgurl, postData.housePrice, postData.houseSpace, postData.houseComment, postData.houseAddress1, postData.houseAddress2, postData.houseAddress3, postData.userMail], function (err, row) {
+      conn.release()
+      if (err) {
+        res.send(200, {
+          data: err
+        });
+      };
+      res.send(200, {
+        result: 1
+
+      })
+    })
+
+  })
 
 })
 
@@ -124,9 +133,11 @@ router.post('/houseUpdate/:houseIdx',upload.single('photo'),function(req,res,nex
       housePrice = ?,
       houseSpace = ?,
       houseComment = ?,
-      houseAddress = ?
+      houseAddress1 = ?,
+      houseAddress2 = ?,
+      houseAddress3 = ?
       WHERE houseIdx = ? AND userMail = ?`;
-    conn.query(sql,[imgurl,postData.housePrice,postData.houseSpace,postData.houseComment,postData.houseAddress,houseIdx,postData.userMail],(err,row)=>{
+    conn.query(sql,[imgurl,postData.housePrice,postData.houseSpace,postData.houseComment,postData.houseAddress1,postData.houseAddress2,postData.houseAddress3,houseIdx,postData.userMail],(err,row)=>{
     conn.release();
     if(err){
       throw err;
@@ -367,12 +378,20 @@ router.get('/userMypage/:userMail',function(req,res,next){
 /*집, 리뷰 검색 */
 router.post('/houseSearch/:searchWord', function(req, res, next) {
   var searchWord = req.params.searchWord;
+ /* var strList = [
+    {
+      "key": "1",
+      "value": searchWord
+    }
+  ]
+
+  strList.push(txt);*/
   pool.getConnection((err,conn)=>{
     if(err){
       throw err;
     }
-    var sql = "SELECT * FROM house,review WHERE house.userMail = review.userMail AND house.housePrice = ? AND house.houseSpace = ? AND house.houseAddress = ? AND review.reviewComment LIKE '%searchWord%' = ? ";
-    conn.query(sql,[req.body.housePrice,req.body.houseSpace,req.body.houseAddress,searchWord],(err,row)=>{
+    var sql = "SELECT * FROM house,review WHERE house.houseIdx = review.houseIdx AND house.housePrice = ? AND house.houseSpace = ? AND house.houseAddress1 = ? AND house.houseAddress2 = ? AND house.houseAddress3 = ? AND review.reviewComment LIKE '%searchWord%' = ? ";
+    conn.query(sql,[req.body.housePrice,req.body.houseSpace,req.body.houseAddress1,req.body.houseAddress2,req.body.houseAddress3,searchWord],(err,row)=>{
       conn.release();
       if(err){
         throw err;
@@ -456,6 +475,10 @@ router.post('/join', function (req, res, next) {
   
 
 })
+
+router.get('/', (req, res)=> {
+  res.send("adfadfadfadaf");
+});
 
 
 module.exports = router;
