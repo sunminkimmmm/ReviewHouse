@@ -39,5 +39,12 @@ public class Like  {
         this.favoriteCheck = favoriteCheck;
     }
 
-
+    @Override
+    public String toString() {
+        return "Like{" +
+                "userMail='" + userMail + '\'' +
+                ", houseIdx='" + houseIdx + '\'' +
+                ", favoriteCheck='" + favoriteCheck + '\'' +
+                '}';
+    }
 }

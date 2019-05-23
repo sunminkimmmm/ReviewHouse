@@ -20,6 +20,7 @@ import android.widget.Toast;
 import com.example.mainpage.user.Like;
 import com.example.mainpage.user.Review;
 import com.example.mainpage.user.ReviewAdapter;
+import com.example.mainpage.user.UserMypage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,12 +39,11 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class DetailHousePage extends AppCompatActivity{
-
     String url;
-
-    ArrayList<House> houseList = new ArrayList<House>();
+    String idx;
+//    ArrayList<House> houseList = new ArrayList<House>();
+    House house = new House();
     ArrayList<Review> reviewList = new ArrayList<Review>();
-
     ReviewAdapter adapter;
     Button goodBtn;
     ImageView imageView;
@@ -52,13 +52,7 @@ public class DetailHousePage extends AppCompatActivity{
    // Button logoutBtn;
     Button houseDeleteBtn, houseUpdateBtn;
     ScrollView sv2;
-
     Bitmap bmImg;
-
-
-
-
-
     JSONTask3 reviewOutput = new JSONTask3();
 
     @Override
@@ -66,13 +60,9 @@ public class DetailHousePage extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.detail_house);
 
-        final Like like = new Like();
-
         //String url = "http://54.180.79.233:3000/houseLike";
         Intent intent1 = getIntent();
-        String idx = intent1.getStringExtra("HouseIdx");
-
-
+        idx = intent1.getStringExtra("HouseIndex");
 
         goodBtn = (Button) findViewById(R.id.goodBtn1);
         price = (TextView) findViewById(R.id.price);
@@ -108,11 +98,6 @@ public class DetailHousePage extends AppCompatActivity{
             }
         });
 
-
-
-
-
-
         reviewOutput.execute(url);
 
         if(SaveSharedPreference.getUserName(DetailHousePage.this).length() != 0){
@@ -136,17 +121,25 @@ public class DetailHousePage extends AppCompatActivity{
             houseUpdateBtn.setVisibility(View.INVISIBLE);
         }
 
-    /*    goodBtn.setOnClickListener(new View.OnClickListener() {
+        goodBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                like.setUserMail(SaveSharedPreference.getUserMail(DetailHousePage.this));
-                like.setHouseIdx(idx);
-                like.setFavoriteCheck("1");
-                new DetailHousePage.ServerConnect((like.getUserMail()), (like.getHouseIdx()),(like.getFavoriteCheck())).execute("http://54.180.79.233:3000/houseLike");
-
+                try {
+                    Like like = new Like();
+                    like.setUserMail(SaveSharedPreference.getUserMail(DetailHousePage.this));
+                    like.setHouseIdx(idx);
+                    like.setFavoriteCheck("1");
+                    Log.d("likeOBJ",like.toString());
+                    new DetailHousePage.ServerConnect((like.getUserMail()), (like.getHouseIdx()),(like.getFavoriteCheck())).execute("http://54.180.79.233:3000/houseLike");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    Intent intent2 = new Intent(DetailHousePage.this, UserMypage.class);
+                    startActivity(intent2);
+                }
 
             }
-        });*/
+        });
 
 
            /* like.setUserMail(SaveSharedPreference.getUserMail(DetailHousePage.this));
@@ -159,13 +152,13 @@ public class DetailHousePage extends AppCompatActivity{
 
 
 
-        reviewListView.setOnTouchListener(new View.OnTouchListener() {        //리스트뷰 터취 리스너
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                sv2.requestDisallowInterceptTouchEvent(true);    // 리스트뷰에서 터치가되면 스크롤뷰만 움직이게
-                return false;
-            }
-        });
+//        reviewListView.setOnTouchListener(new View.OnTouchListener() {        //리스트뷰 터취 리스너
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                sv2.requestDisallowInterceptTouchEvent(true);    // 리스트뷰에서 터치가되면 스크롤뷰만 움직이게
+//                return false;
+//            }
+//        });
 
 
 
@@ -247,26 +240,23 @@ public class DetailHousePage extends AppCompatActivity{
 
                 //Log.d("jsonObject: ", getKey.getString("data").toString());
                 JSONObject jsonObject1 = new JSONObject(getKey.getString("data").toString());
-                JSONArray jsonArray1 = new JSONArray(jsonObject1.getString("house"));
+
                 JSONArray jsonArray2 = new JSONArray(jsonObject1.getString("review"));
+                JSONObject houseObjet = new JSONObject(jsonObject1.getString("house"));
+                    house = new House(
+                            houseObjet.getString("houseIdx"),
+                            houseObjet.getString("housePic"),
+                            houseObjet.getString("housePrice"),
+                            houseObjet.getString("houseSpace"),
+                            houseObjet.getString("houseComment"),
+                            houseObjet.getString("houseAddress1"),
+                            houseObjet.getString("houseAddress2"),
+                            houseObjet.getString("houseAddress3"),
+                            houseObjet.getString("userMail")
 
-                for(int i =0; i< jsonArray1.length(); i++){
-                    JSONObject jsonObject = jsonArray1.getJSONObject(i);
-                    houseList.add(new House(
-                            jsonObject.getString("houseIdx"),
-                            jsonObject.getString("housePic"),
-                            jsonObject.getString("housePrice"),
-                            jsonObject.getString("houseSpace"),
-                            jsonObject.getString("houseComment"),
-                            jsonObject.getString("houseAddress1"),
-                            jsonObject.getString("houseAddress2"),
-                            jsonObject.getString("houseAddress3"),
-                            jsonObject.getString("userMail")
-
-                    ));
-                    Log.d("House" + i + ":", houseList.get(i).toString());
-                }
-                for(int i =0; i< jsonArray2.length(); i++){
+                    );
+                    Log.d("House: ", house.toString());
+            for(int i =0; i< jsonArray2.length(); i++){
                     JSONObject jsonObject = jsonArray2.getJSONObject(i);
                     reviewList.add(new Review(
                             jsonObject.getString("userMail"),
@@ -283,11 +273,11 @@ public class DetailHousePage extends AppCompatActivity{
                 reviewListView.setAdapter(adapter);
 
 
-                new DownloadImageTask((ImageView)findViewById(R.id.h_image)).execute(("http://54.180.79.233:3000/" + houseList.get(0).getHousePic()));
-                price.setText(houseList.get(0).getHousePrice());
-                address.setText(houseList.get(0).getHouseAddress1() + " " + houseList.get(0).getHouseAddress2() + " " + houseList.get(0).getHouseAddress3());
-                space.setText(houseList.get(0).getHouseSpace());
-                comment.setText(houseList.get(0).getHouseComment());
+                new DownloadImageTask((ImageView)findViewById(R.id.h_image)).execute(("http://54.180.79.233:3000/" + house.getHousePic()));
+                price.setText(house.getHousePrice());
+                address.setText(house.getHouseAddress1() + " " + house.getHouseAddress2() + " " + house.getHouseAddress3());
+                space.setText(house.getHouseSpace());
+                comment.setText(house.getHouseComment());
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -423,7 +413,7 @@ public class DetailHousePage extends AppCompatActivity{
             try {
                 JSONObject postData = new JSONObject(result);
                 if(postData.getString("result").equals("1")) {
-                    Intent intent = new Intent(DetailHousePage.this, DetailHousePage.class);
+                    Intent intent = new Intent(DetailHousePage.this, UserMypage.class);
                     startActivity(intent);
                     finish();
                 } else {
