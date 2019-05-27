@@ -55,7 +55,7 @@ public class ListViewAdapter extends BaseAdapter {
         }
 
         House house = data.get(position);
-        new DownloadImageTask((ImageView) convertView.findViewById(R.id.imageview)).execute(("http://54.180.79.233:3000/" + house.getHousePic()));
+        new DownloadImageTask((ImageView) convertView.findViewById(R.id.imageview)).execute(("http://54.180.88.98:3000/" + house.getHousePic()));
         TextView name1=(TextView)convertView.findViewById(R.id.text1);
         name1.setText("가격 : " + house.getHousePrice());
         TextView name2=(TextView)convertView.findViewById(R.id.text2);

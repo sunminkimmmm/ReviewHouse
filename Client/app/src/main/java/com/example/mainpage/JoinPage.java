@@ -78,7 +78,7 @@ public class JoinPage extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "비밀번호를 입력하시오", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    new ServerConnect((join.getJoinName()), (join.getJoinMail()), (join.getJoinPassword()), (join.getJoinSeparation())).execute("http://54.180.79.233:3000/join"); //AsyncTask 시작시킴
+                    new ServerConnect((join.getJoinName()), (join.getJoinMail()), (join.getJoinPassword()), (join.getJoinSeparation())).execute("http://54.180.88.98:3000/join"); //AsyncTask 시작시킴
                 }
             }
         });

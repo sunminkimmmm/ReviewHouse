@@ -41,7 +41,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class UserListPage extends AppCompatActivity {
-    String url = "http://54.180.79.233:3000/reviewList";
+    String url = "http://54.180.88.98:3000/reviewList";
     Button rwUpdateBtn,rwDeleteBtn;
     ArrayList<Review> reviewList = new ArrayList<Review>();
     ReviewAdapter adapter;

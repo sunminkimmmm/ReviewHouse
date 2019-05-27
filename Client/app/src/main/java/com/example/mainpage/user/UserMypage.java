@@ -5,11 +5,9 @@ import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -18,11 +16,8 @@ import com.example.mainpage.DetailHousePage;
 import com.example.mainpage.House;
 import com.example.mainpage.ListViewAdapter;
 import com.example.mainpage.MainActivity;
-import com.example.mainpage.OwnerMypage;
 import com.example.mainpage.R;
 import com.example.mainpage.SaveSharedPreference;
-import com.example.mainpage.user.Session;
-import com.example.mainpage.user.User;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -38,11 +33,13 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class UserMypage extends AppCompatActivity{
-    String url = "http://54.180.79.233:3000/userMypage/";
+    String url = "http://54.180.88.98:3000/userMypage/";
     ArrayList<House> houseList = new ArrayList<House>();
 
     ListViewAdapter adapter;
     ListView listView3;
+
+
     TextView ownerName3;
     Button logoutButton3;
     ScrollView user1;
@@ -199,6 +196,9 @@ public class UserMypage extends AppCompatActivity{
                         startActivity(intent);
                     }
                 });
+
+
+
 
 
 

@@ -1,20 +1,16 @@
 package com.example.mainpage;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
-import android.webkit.CookieManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.mainpage.user.Session;
 import com.example.mainpage.user.User;
 import com.example.mainpage.user.UserMypage;
 
@@ -95,7 +91,7 @@ public class LoginPage extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "비밀번호를 입력하시오", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    new ServerConnect((login.getLoginMail()), (login.getLoginPassword()),(login.getLoginSeparation())).execute("http://54.180.79.233:3000/login"); //AsyncTask 시작시킴
+                    new ServerConnect((login.getLoginMail()), (login.getLoginPassword()),(login.getLoginSeparation())).execute("http://54.180.88.98:3000/login"); //AsyncTask 시작시킴
                 }
 
             }

@@ -80,7 +80,7 @@ public class DetailHousePage extends AppCompatActivity{
 
         Intent intent = getIntent();
         String houseIdx = intent.getStringExtra("HouseIndex");
-        url = "http://54.180.79.233:3000/houseView/" + houseIdx;
+        url = "http://54.180.88.98:3000/houseView/" + houseIdx;
 
 
 
@@ -130,7 +130,7 @@ public class DetailHousePage extends AppCompatActivity{
                     like.setHouseIdx(idx);
                     like.setFavoriteCheck("1");
                     Log.d("likeOBJ",like.toString());
-                    new DetailHousePage.ServerConnect((like.getUserMail()), (like.getHouseIdx()),(like.getFavoriteCheck())).execute("http://54.180.79.233:3000/houseLike");
+                    new DetailHousePage.ServerConnect((like.getUserMail()), (like.getHouseIdx()),(like.getFavoriteCheck())).execute("http://54.180.88.98:3000/houseLike");
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
@@ -273,7 +273,7 @@ public class DetailHousePage extends AppCompatActivity{
                 reviewListView.setAdapter(adapter);
 
 
-                new DownloadImageTask((ImageView)findViewById(R.id.h_image)).execute(("http://54.180.79.233:3000/" + house.getHousePic()));
+                new DownloadImageTask((ImageView)findViewById(R.id.h_image)).execute(("http://54.180.88.98:3000/" + house.getHousePic()));
                 price.setText(house.getHousePrice());
                 address.setText(house.getHouseAddress1() + " " + house.getHouseAddress2() + " " + house.getHouseAddress3());
                 space.setText(house.getHouseSpace());

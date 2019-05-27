@@ -1,7 +1,5 @@
 package com.example.mainpage.user;
 
-
-
 public class Like  {
     private String userMail;
     private String houseIdx;

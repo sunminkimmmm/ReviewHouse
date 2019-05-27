@@ -13,6 +13,8 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.mainpage.user.SearchPage;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +29,7 @@ import java.net.URL;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    String url = "http://54.180.79.233:3000/recently";
+    String url = "http://54.180.88.98:3000/recently";
     ArrayList<House> houseList = new ArrayList<House>();
 
     //ArrayList<Integer> picArr = new ArrayList<>();
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, DetailHousePage.class);
+                Intent intent = new Intent(MainActivity.this, SearchPage.class);
                 startActivity(intent);
             }
         });

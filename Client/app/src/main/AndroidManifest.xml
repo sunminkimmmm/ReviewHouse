@@ -40,6 +40,9 @@
         <activity
             android:name=".user.UserMypage"
             android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".user.SearchPage"
+            android:parentActivityName=".MainActivity" />
     </application>
 
 </manifest>

@@ -129,12 +129,13 @@ router.get('/houseDelete/:houseIdx', function (req, res, next) {
 router.post('/houseUpdate/:houseIdx', upload.single('photo'), function (req, res, next) {
   var houseIdx = req.params.houseIdx;
   var postData = req.body;
-  var imgurl = 'images/' + req.file.originalname;
+  var imgurl = "";
   pool.getConnection((err, conn) => {
     if (err) {
       throw err;
     }
     if (req.file !== undefined) {
+          imgurl = 'images/' + req.file.originalname;
     
       var sql = `UPDATE house SET
           housePic = ?,
@@ -159,6 +160,7 @@ router.post('/houseUpdate/:houseIdx', upload.single('photo'), function (req, res
   }
   else{
     var sql = `UPDATE house SET
+          housePic = ?,
           housePrice = ?,
           houseSpace = ?,
           houseComment = ?,
@@ -166,7 +168,7 @@ router.post('/houseUpdate/:houseIdx', upload.single('photo'), function (req, res
           houseAddress2 = ?,
           houseAddress3 = ?
           WHERE houseIdx = ? AND userMail = ?`;
-            conn.query(sql, [ postData.housePrice, postData.houseSpace, postData.houseComment, postData.houseAddress1, postData.houseAddress2, postData.houseAddress3, houseIdx, postData.userMail], (err, row) => {
+            conn.query(sql, [imgurl, postData.housePrice, postData.houseSpace, postData.houseComment, postData.houseAddress1, postData.houseAddress2, postData.houseAddress3, houseIdx, postData.userMail], (err, row) => {
             conn.release();
             if (err) {
                throw err;
@@ -231,7 +233,7 @@ router.get('/houseView/:houseIdx', function (req, res, next) {
       if (err) {
         throw err;
       }
-      data.house = row;
+      data.house = row[0];
       var sql = "SELECT * FROM house,review, user WHERE house.houseIdx = review.houseIdx AND review.userMail = user.userMail AND house.houseIdx = ?"
       conn.query(sql, [houseIdx], (err, row) => {
         conn.release();
@@ -354,16 +356,37 @@ router.post('/houseLike', function (req, res, next) {
   var postData = req.body;
   pool.getConnection(function (err, conn) {
     if (err) throw err;
-    var sql = "INSERT INTO favorite (userMail, houseIdx, favoriteCheck) VALUES (?, ?, ?);"
-    conn.query(sql, [postData.userMail, postData.houseIdx, postData.favoriteCheck], function (err, row) {
-      conn.release()
-      if (err) throw err;
-      res.send(200, {
+    var sql = "SELECT * FROM favorite WHERE userMail = ? AND houseIdx = ? AND favoriteCheck = ?";
+    conn.query(sql, [postData.userMail,postData.houseIdx,postData.favoriteCheck], (err, row) => {
+      if (err) {
+        throw err;
+      }
+      if(row.length !== 0){
+        var sql = "DELETE FROM favorite WHERE userMail = ? AND houseIdx = ? AND favoriteCheck = ?";
+         conn.query(sql, [postData.userMail,postData.houseIdx,postData.favoriteCheck], function (err) {
+         if (err) {
+        throw err;
+        }
+        res.send(200, {
         result: 1
+      })
+    });
+
+      }
+      else{
+        var sql = "INSERT INTO favorite (userMail, houseIdx, favoriteCheck) VALUES (?, ?, ?);"
+        conn.query(sql, [postData.userMail, postData.houseIdx, postData.favoriteCheck], function (err, row) {
+          conn.release()
+          if (err) throw err;
+          res.send(200, {
+          result: 1
 
       })
     });
+      }
+   
   })
+})
 })
 
 /*좋아요 취소 */
@@ -423,22 +446,25 @@ router.get('/userMypage/:userMail', function (req, res, next) {
 })
 
 /*집, 리뷰 검색 */
-router.post('/houseSearch/:searchWord', function (req, res, next) {
-  var searchWord = req.params.searchWord;
-  /* var strList = [
-     {
-       "key": "1",
-       "value": searchWord
-     }
-   ]
- 
-   strList.push(txt);*/
+router.post('/houseSearch', function (req, res, next) {
+  
+  //console.log(req.body);
   pool.getConnection((err, conn) => {
     if (err) {
       throw err;
     }
-    var sql = "SELECT * FROM house,review WHERE house.houseIdx = review.houseIdx AND house.housePrice = ? AND house.houseSpace = ? AND house.houseAddress1 = ? AND house.houseAddress2 = ? AND house.houseAddress3 = ? AND review.reviewComment LIKE '%searchWord%' = ? ";
-    conn.query(sql, [req.body.housePrice, req.body.houseSpace, req.body.houseAddress1, req.body.houseAddress2, req.body.houseAddress3, searchWord], (err, row) => {
+    var sql = "SELECT searchWord FROM search WHERE similarWord = ? "
+    conn.query(sql,[req.body.keyword],(err,rs)=>{
+      if (err) {
+        throw err;
+      }
+
+    var word = rs[0];
+    console.log(word)
+
+
+    var sql = "SELECT * FROM house,review WHERE house.houseIdx = review.houseIdx AND house.housePrice BETWEEN ?-5000 AND ?+5000 AND house.houseSpace BETWEEN ?-10 AND ?+10 AND house.houseAddress1 = ? AND house.houseAddress2 = ? AND house.houseAddress3 = ? AND review.reviewComment LIKE '%' ? '%'";
+    conn.query(sql, [req.body.housePrice1,req.body.housePrice2, req.body.houseSpace1,req.body.houseSpace2, req.body.houseAddress1, req.body.houseAddress2, req.body.houseAddress3,word.searchWord], (err, row) => {
       conn.release();
       if (err) {
         throw err;
@@ -449,15 +475,51 @@ router.post('/houseSearch/:searchWord', function (req, res, next) {
           msg: "failed"
         });
       } else {
+        console.log(row)
         res.send(200, {
           result: 1,
           data: row
+
         })
       }
     })
   })
 
+  })
 });
+
+
+  /*pool.getConnection((err, conn) => {
+    if (err) {
+      throw err;
+    }
+    var sql = "SELECT * FROM house,review WHERE house.houseIdx = review.houseIdx AND house.housePrice BETWEEN ?-5000 AND ?+5000 AND house.houseSpace BETWEEN ?-10 AND ?+10 AND house.houseAddress1 = ? AND house.houseAddress2 = ? AND house.houseAddress3 = ? AND review.reviewComment LIKE '%' ? '%'";
+    conn.query(sql, [req.body.housePrice1,req.body.housePrice2, req.body.houseSpace1,req.body.houseSpace2, req.body.houseAddress1, req.body.houseAddress2, req.body.houseAddress3,req.body.keyword], (err, row) => {
+      conn.release();
+      if (err) {
+        throw err;
+      }
+      if (row.length === 0) {
+        res.send(300, {
+          result: 0,
+          msg: "failed"
+        });
+      } else {
+        console.log(row)
+        res.send(200, {
+          result: 1,
+          data: row
+
+        })
+      }
+    })
+  })*/
+
+  /**var sql = "SELECT search.searchWord FROM search WHERE search.similarWord = ? "
+  conn.query(sql,[req.body.keyword],(err,res)=>{
+    conn.release(); */
+
+
 
 
 /* 로그인 요청 */
@@ -525,7 +587,17 @@ router.post('/join', function (req, res, next) {
 })
 
 router.get('/', (req, res) => {
-  res.send("adfadfadfadaf");
+  var sql = "SELECT * FROM house WHERE housePrice BETWEEN ?-5000 AND ?+5000";
+  pool.getConnection((err, conn)=> {
+    if(err){
+      throw err;
+    }
+    conn.query(sql, ["15000", "15000"], (err, row) => {
+      if(err) throw err;
+      console.log(row);
+      res.send(row)
+    })
+  })
 });
 
 
